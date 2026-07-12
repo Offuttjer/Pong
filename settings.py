@@ -1,0 +1,6 @@
+# ---------- Constants ----------
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+BACKGROUND_COLOR = (0, 0, 0)
+TEXT_COLOR = (205, 255, 225)
+FPS = 60

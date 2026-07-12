@@ -6,11 +6,11 @@ from pygame.math import Vector2
 import random
 import math
 import copy
+from settings import *
+from menu import show_menu
+import multiplayer
 
-# ---------- Constants ----------
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-FPS = 60
+
 
 # ---------- Classes ----------
 class Paddle:
@@ -33,13 +33,23 @@ class Paddle:
         self.position = self.position + self.velocity  
         # if self.position.y  < 0:
         #     self.velocity.y *= -1
-        # if self.position.y + self.borders.y > SCREEN_HEIGHT:
+        if self.position.y + self.borders.y > SCREEN_HEIGHT:
+            self.position.y = SCREEN_HEIGHT - self.borders.y
+        if self.position.y < 0:
+            self.position.y = 0
         #     self.velocity.y *= -1
         # if self.position.x  < 0:
         #     self.velocity.x *= -1
         # if self.position.x + self.borders.x > SCREEN_WIDTH:
         #     self.velocity.x *= -1
 
+    def move_up(self):
+        self.position.y += -4
+        self.velocity.y = -4
+    def move_down(self):
+        self.position.y += 4
+        self.velocity.y = 4
+    
     def get_rect(self):
         return pygame.Rect(self.position.x, self.position.y, self.borders.x, self.borders.y)
     
@@ -98,13 +108,14 @@ print("Welcome to Pong! Use the arrow keys to move your paddle up and down. Pres
 # ---------- Functions ----------
 def draw_window(screen, rtPaddle, ltPaddle, ball, invis, gameScore):
     """Draw everything on the screen."""
-    screen.fill((0, 0, 0))  # Clear the screen with black
+    screen.fill(BACKGROUND_COLOR)  # Clear the screen with black
 
     pygame.draw.rect(screen, (240, 50, 250), rtPaddle.get_rect()) # Draw the right paddle
     pygame.draw.rect(screen, (40, 50, 250), ltPaddle.get_rect()) # Draw the left paddle
     pygame.draw.rect(screen, (255, 0, 0), ball.get_rect()) # Draw the ball
-    pygame.display.set_caption("Pong Left Score: " + str(gameScore.leftScore) + " Right Score: " + str(gameScore.rightScore))
+    pygame.display.set_caption("Pong         Left Score: " + str(0) + "    Right Score: " + str(0))
 
+    
     # pygame.draw.rect(screen, (50, 200, 100), invis.get_rect()) # Draw the invisble ball delete later
 
 
@@ -116,7 +127,7 @@ def handle_input(rtPaddle):
 
     rtPaddle.position.y = mousey - rtPaddle.borders.y / 2  # Center the paddle on the mouse position
 
-def check_game_score(ball, invisBall, gameScore):
+def check_game_score(ball, invisBall, gameScore, screen):
     """Check if the ball has gone off the screen and update the score."""
     if ball.position.x < 0:
         gameScore.rightScore += 1
@@ -129,12 +140,49 @@ def check_game_score(ball, invisBall, gameScore):
         ball.position = Vector2(SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
         ball.velocity = Vector2(random.randint(2, 6)*random.choice([-1, 1]), random.randint(2, 6)*random.choice([-1, 1]))
         invisBall.invisUpdate(ball)
-
-    #ensures the ball doesn't get in a straight left right loop or a straight up down loop
+        #ensures the ball doesn't get in a straight left right loop or a straight up down loop
     if abs(ball.velocity.y) < 0.5:
         ball.velocity.y = random.randint(1, 4)
     if abs(ball.velocity.x) < 0.1:
         ball.velocity.x = random.randint(1, 4)
+    end(gameScore, screen)  # Check if the game is over after updating the score
+
+    
+
+def end(gameScore, screen):
+    """Check if the game is over and display the final score."""
+    if gameScore.leftScore >= 2 or gameScore.rightScore >= 2:
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return # Quit the game
+                
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_ESCAPE]:
+                pygame.quit()
+                return  # Quit the game
+            # Fill the screen with a background color
+            screen.fill(BACKGROUND_COLOR)
+        
+            # Create a font object
+            font = pygame.font.Font(None, 74)
+
+            title = font.render("GAME OVER", True, TEXT_COLOR)
+            title_rect = title.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4))
+            screen.blit(title, title_rect)
+
+            # Render the text
+            text = font.render("Final Score - Left: {} Right: {}".format(gameScore.leftScore, gameScore.rightScore), True, TEXT_COLOR)
+            text_rect = text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
+            screen.blit(text, text_rect)
+            pygame.display.flip()
+            
+
+            
+        
+
+    
         
 
 
@@ -166,56 +214,65 @@ def main():
     
     clock = pygame.time.Clock()
 
-    running = True
+    choice = show_menu(screen)
+    print("Menu choice:", choice)
+    if(choice == "quit"):
+        pygame.quit()
+        exit()  # Quit the game
+    if(choice == "start Multiplayer"):
+        print("Comeing soon ...")
+        multiplayer.multiplayer(screen)
+    #elif (choice == "start Singleplayer"):
+        running = True
 
-    while running:
+        while running:
 
-        # Limit FPS
-        clock.tick(FPS)
+            # Limit FPS
+            clock.tick(FPS)
+            
+            #move it        
+            ball.update()
+            invis.update()
         
-        #move it        
-        ball.update()
-        invis.update()
-       
-        rtPaddle.AI(ball)
-        ltPaddle.AI(invis)
-        ltPaddle.update()
-        rtPaddle.update()
+            rtPaddle.AI(ball)
+            ltPaddle.AI(invis)
+            ltPaddle.update()
+            rtPaddle.update()
 
-        #check it
-        check_game_score(ball, invis, gameScore)
-        if ball.velocity.x > 0 and check_collision(ball, rtPaddle): #This check-if-ball-is-moving-right fixed the issue of the ball getting stuck in the paddle when hit from the end.
-            collidedWithPaddle(ball, rtPaddle)
-            invis.invisUpdate(ball)
-        if ball.velocity.x < 0 and check_collision(ball, ltPaddle):
-            collidedWithPaddle(ball, ltPaddle)
-            invis.invisUpdate(ball)
-        if invis.velocity.x > 0 and check_collision(invis, rtPaddle):
-            collidedWithPaddle(invis, rtPaddle)
-        if invis.velocity.x < 0 and check_collision(invis, ltPaddle):
-            collidedWithPaddle(invis, ltPaddle)
+            #check it
+            check_game_score(ball, invis, gameScore, screen)
+            if ball.velocity.x > 0 and check_collision(ball, rtPaddle): #This check-if-ball-is-moving-right fixed the issue of the ball getting stuck in the paddle when hit from the end.
+                collidedWithPaddle(ball, rtPaddle)
+                invis.invisUpdate(ball)
+            if ball.velocity.x < 0 and check_collision(ball, ltPaddle):
+                collidedWithPaddle(ball, ltPaddle)
+                invis.invisUpdate(ball)
+            if invis.velocity.x > 0 and check_collision(invis, rtPaddle):
+                collidedWithPaddle(invis, rtPaddle)
+            if invis.velocity.x < 0 and check_collision(invis, ltPaddle):
+                collidedWithPaddle(invis, ltPaddle)
 
-        # Event Loop
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            # Event Loop
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+
+            # Input
+            handle_input(rtPaddle)
+
+            #fix it
+            # Update Game Objects
+            keyboard = pygame.key.get_pressed()
+            if(keyboard[pygame.K_ESCAPE]):
                 running = False
 
-        # Input
-        handle_input(rtPaddle)
-
-        #fix it
-        # Update Game Objects
-        keyboard = pygame.key.get_pressed()
-        if(keyboard[pygame.K_ESCAPE]):
-            running = False
-
-        #draw it
-        # Draw Everything
-        draw_window(screen, rtPaddle, ltPaddle, ball, invis, gameScore)
-        
-        
-        pygame.DOUBLEBUF
-        pygame.display.flip()
+            #draw it
+            # Draw Everything
+            draw_window(screen, rtPaddle, ltPaddle, ball, invis, gameScore)
+            
+            
+            pygame.DOUBLEBUF
+            pygame.display.flip()
 
     pygame.quit()
 
