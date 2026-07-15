@@ -151,7 +151,7 @@ def check_game_score(ball, invisBall, gameScore, screen):
 
 def end(gameScore, screen):
     """Check if the game is over and display the final score."""
-    if gameScore.leftScore >= 2 or gameScore.rightScore >= 2:
+    if gameScore.leftScore >= 5 or gameScore.rightScore >= 5:
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

@@ -38,6 +38,7 @@ def show_menu(screen):
         # Render the instructions
         instruction_font = pygame.font.Font(None, 36)
         instructions = [
+            "First to 5 wins",
             "Press SPACE to Start Single Player",
             "Press M to Start Multiplayer, Game to 10",
             "Press ESC to Quit"
