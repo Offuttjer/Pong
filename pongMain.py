@@ -173,10 +173,33 @@ def end(gameScore, screen):
             screen.blit(title, title_rect)
 
             # Render the text
-            text = font.render("Final Score - Left: {} Right: {}".format(gameScore.leftScore, gameScore.rightScore), True, TEXT_COLOR)
-            text_rect = text.get_rect(center=(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
-            screen.blit(text, text_rect)
+            font = pygame.font.Font(None, 48)
+
+            lines = [
+                f"Final Score - Left: {gameScore.leftScore}   Right: {gameScore.rightScore}",
+                "",
+                "Press SPACE to play again",
+                "Press ESC to quit"
+            ]
+
+            start_y = SCREEN_HEIGHT // 2
+
+            for i, line in enumerate(lines):
+                surface = font.render(line, True, TEXT_COLOR)
+                rect = surface.get_rect(center=(SCREEN_WIDTH // 2, start_y + i * 50))
+                screen.blit(surface, rect)
+    
             pygame.display.flip()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit() 
+                elif event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    exit()  # Quit the game
+                elif event.key == pygame.K_SPACE:
+                    main()  # Restart the game
             
 
             
@@ -220,9 +243,8 @@ def main():
         pygame.quit()
         exit()  # Quit the game
     if(choice == "start Multiplayer"):
-        print("Comeing soon ...")
         multiplayer.multiplayer(screen)
-    #elif (choice == "start Singleplayer"):
+    elif (choice == "start Single Player"):
         running = True
 
         while running:
