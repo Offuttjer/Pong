@@ -16,6 +16,8 @@ def show_menu(screen):
                     return "start Single Player"
                 if event.key == pygame.K_m:
                     return "start Multiplayer"
+                if event.key == pygame.K_4:
+                    return "start Quadpong"
                 elif event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     exit()  # Quit the game
@@ -40,7 +42,10 @@ def show_menu(screen):
         instructions = [
             "First to 5 wins",
             "Press SPACE to Start Single Player",
+            "Press 4 to start Quadpong",
             "Press M to Start Multiplayer, Game to 10",
+            "  W/S to Move Left Paddle",
+            "  UP/DOWN to Move Right Paddle",
             "Press ESC to Quit"
             
         ]

@@ -12,93 +12,9 @@ import multiplayer
 
 
 
-# ---------- Classes ----------
-class Paddle:
+
+
     
-
-    def __init__(self, x=   SCREEN_WIDTH-40, y=100, width=10, height=100):
-        #build properties of the paddle
-        self.position = Vector2(x, y)
-        self.width = 0
-        self.height = 0
-        self.velocity = Vector2(0, 0)
-
-        #initialize the paddle's position and size
-        self.position = Vector2(x, y)
-        self.borders = Vector2(width, height)
-        self.velocity = Vector2(0, 0)
-
-    def update(self ):
-       
-        self.position = self.position + self.velocity  
-        # if self.position.y  < 0:
-        #     self.velocity.y *= -1
-        if self.position.y + self.borders.y > SCREEN_HEIGHT:
-            self.position.y = SCREEN_HEIGHT - self.borders.y
-        if self.position.y < 0:
-            self.position.y = 0
-        #     self.velocity.y *= -1
-        # if self.position.x  < 0:
-        #     self.velocity.x *= -1
-        # if self.position.x + self.borders.x > SCREEN_WIDTH:
-        #     self.velocity.x *= -1
-
-    def move_up(self):
-        self.position.y += -4
-        self.velocity.y = -4
-    def move_down(self):
-        self.position.y += 4
-        self.velocity.y = 4
-    
-    def get_rect(self):
-        return pygame.Rect(self.position.x, self.position.y, self.borders.x, self.borders.y)
-    
-    def AI(self, ball):
-        if ball.position.x - SCREEN_WIDTH /3*2 < 0 and self.position.x - SCREEN_WIDTH /3*2 < 0 or ball.position.x - SCREEN_WIDTH /3 > 0 and self.position.x - SCREEN_WIDTH /3 > 0:
-            if ball.position.y < self.position.y:
-                self.velocity.y = -4 * random.uniform(0.3, 1.9)
-            elif ball.position.y > self.position.y + self.borders.y:
-                self.velocity.y = 4 * random.uniform(0.3, 1.9)
-            else:
-                self.velocity.y = 0
-        else:
-            self.velocity.y *= 0.01
-
-class Ball(Paddle):
-    def __init__(self, x=SCREEN_WIDTH/2, y=SCREEN_HEIGHT/2, width=10, height=10):
-        super().__init__(x, y, width, height)
-        self.velocity = Vector2(4, random.randint(2, 5))
-
-    def update(self):
-        self.position += self.velocity
-        if self.position.y < 0 or self.position.y + self.borders.y > SCREEN_HEIGHT:
-            self.velocity.y *= -1
-
-    def invisUpdate(self, ball):
-        self.position = copy.deepcopy(ball.position)
-        self.velocity = copy.deepcopy(ball.velocity)
-
-        #Leads the ball by 100 pixels in the direction it is moving
-        if self.velocity.x < 0:
-            self.position.x -= 50
-        else:
-            self.position.x += 50
-        if self.velocity.y < 0:
-            self.position.y -= 50
-        else:
-            self.position.y += 50
-
-        #includes bouncing off the top and bottom of the screen
-        if self.position.y < 0 or self.position.y + self.borders.y > SCREEN_HEIGHT:
-            self.velocity.y *= -1
-
-        
-    
-class Score:
-    def __init__(self):
-        self.leftScore = 0
-        self.rightScore = 0
-
 
 
 
@@ -244,6 +160,9 @@ def main():
         exit()  # Quit the game
     if(choice == "start Multiplayer"):
         multiplayer.multiplayer(screen)
+    elif (choice == "start Quadpong"):
+        import quadpong
+        quadpong.main()
     elif (choice == "start Single Player"):
         running = True
 
