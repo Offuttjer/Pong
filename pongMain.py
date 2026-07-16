@@ -6,19 +6,15 @@ from pygame.math import Vector2
 import random
 import math
 import copy
+from Ball import Ball
+from Paddle import Paddle
+from Score import Score
 from settings import *
 from menu import show_menu
 import multiplayer
 
 
 
-
-
-    
-
-
-
-print("Welcome to Pong! Use the arrow keys to move your paddle up and down. Press 'ESCAPE' to quit the game.")
 
 
 # ---------- Functions ----------
@@ -29,7 +25,7 @@ def draw_window(screen, rtPaddle, ltPaddle, ball, invis, gameScore):
     pygame.draw.rect(screen, (240, 50, 250), rtPaddle.get_rect()) # Draw the right paddle
     pygame.draw.rect(screen, (40, 50, 250), ltPaddle.get_rect()) # Draw the left paddle
     pygame.draw.rect(screen, (255, 0, 0), ball.get_rect()) # Draw the ball
-    pygame.display.set_caption("Pong         Left Score: " + str(0) + "    Right Score: " + str(0))
+    pygame.display.set_caption("Pong         Left Score: " + str(gameScore.leftScore) + "    Right Score: " + str(gameScore.rightScore))
 
     
     # pygame.draw.rect(screen, (50, 200, 100), invis.get_rect()) # Draw the invisble ball delete later
@@ -61,23 +57,31 @@ def check_game_score(ball, invisBall, gameScore, screen):
         ball.velocity.y = random.randint(1, 4)
     if abs(ball.velocity.x) < 0.1:
         ball.velocity.x = random.randint(1, 4)
-    end(gameScore, screen)  # Check if the game is over after updating the score
+    end(gameScore, screen, "reg")  # Check if the game is over after updating the score
 
     
 
-def end(gameScore, screen):
+def end(gameScore, screen, game):
     """Check if the game is over and display the final score."""
-    if gameScore.leftScore >= 5 or gameScore.rightScore >= 5:
+    if gameScore.leftScore >= 5 or gameScore.rightScore >= 5 or gameScore.tpScore >= 5 or gameScore.btScore >=5:
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     return # Quit the game
                 
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_ESCAPE]:
-                pygame.quit()
-                return  # Quit the game
+                elif event.type == pygame.KEYDOWN:
+            #keys = pygame.key.get_pressed()
+                    if event.key ==pygame.K_ESCAPE:
+                            pygame.quit()
+                            return  # Quit the game
+                    elif event.key == pygame.K_ESCAPE:
+                        pygame.quit()
+                        exit()  # Quit the game
+                    elif event.key == pygame.K_SPACE:
+                        main()  # Restart the game
+                    else:
+                        pass
             # Fill the screen with a background color
             screen.fill(BACKGROUND_COLOR)
         
@@ -91,12 +95,21 @@ def end(gameScore, screen):
             # Render the text
             font = pygame.font.Font(None, 48)
 
-            lines = [
-                f"Final Score - Left: {gameScore.leftScore}   Right: {gameScore.rightScore}",
-                "",
-                "Press SPACE to play again",
-                "Press ESC to quit"
-            ]
+            if game == "reg":
+                lines = [
+                    f"Final Score - Left: {gameScore.leftScore}   Right: {gameScore.rightScore}",
+                    "",
+                    "Press SPACE to play again",
+                    "Press ESC to quit"
+                ]
+            if game == "quad":
+                lines = [
+                    f"Final Score - Left: {-1 *gameScore.leftScore}   Right: {-1 *gameScore.rightScore}",
+                    f"Final Score - Top: {-1 *gameScore.tpScore}   Bottom: {-1 *gameScore.btScore}",
+                    "",
+                    "Press SPACE to play again",
+                    "Press ESC to quit"
+                ]
 
             start_y = SCREEN_HEIGHT // 2
 
@@ -107,15 +120,8 @@ def end(gameScore, screen):
     
             pygame.display.flip()
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    exit() 
-                elif event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    exit()  # Quit the game
-                elif event.key == pygame.K_SPACE:
-                    main()  # Restart the game
+            
+                
             
 
             
@@ -132,9 +138,14 @@ def check_collision(ball, paddle):
 
 def collidedWithPaddle(ball, paddle):
     """Modifies the ball's velocity based on the paddles speed during collision."""
-    ball.velocity.x *= -1
-    if paddle.velocity.y != 0:
-        ball.velocity.y +=  (paddle.velocity.y + 0.1)
+    if paddle.side == "left" or paddle.side == "right":
+        ball.velocity.x *= -1
+        if paddle.velocity.y != 0:
+            ball.velocity.y +=  (paddle.velocity.y + 0.1)
+    if paddle.side == "top" or paddle.side == "bottom":
+        ball.velocity.y *= -1
+        if paddle.velocity.x != 0:
+            ball.velocity.x +=  (paddle.velocity.x + 0.1)
     ball.update()  # Update the ball's position after changing its velocity
 
 # ---------- Main ----------
@@ -143,8 +154,8 @@ def main():
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     
-    rtPaddle = Paddle()
-    ltPaddle = Paddle(x=30, y=100)
+    rtPaddle = Paddle(side="right")
+    ltPaddle = Paddle(x=30, y=100, side="left")
     ball = Ball()
     invis = Ball()
     invis = copy.deepcopy(ball)
@@ -162,7 +173,7 @@ def main():
         multiplayer.multiplayer(screen)
     elif (choice == "start Quadpong"):
         import quadpong
-        quadpong.main()
+        quadpong.main(screen)
     elif (choice == "start Single Player"):
         running = True
 
@@ -192,6 +203,9 @@ def main():
                 collidedWithPaddle(invis, rtPaddle)
             if invis.velocity.x < 0 and check_collision(invis, ltPaddle):
                 collidedWithPaddle(invis, ltPaddle)
+            
+            if ball.position.y < 0 or ball.position.y > SCREEN_HEIGHT:
+                ball.velocity.y *= -1
 
             # Event Loop
             for event in pygame.event.get():

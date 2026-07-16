@@ -1,7 +1,9 @@
-from pongMain import Ball, Score, check_game_score, check_collision, collidedWithPaddle, draw_window
+from pongMain import check_game_score, check_collision, collidedWithPaddle, draw_window
 import pygame
 from settings import *
-from pongMain import Paddle
+from Ball import Ball
+from Paddle import Paddle
+from Score import Score
 
 
 def multiplayer(screen):

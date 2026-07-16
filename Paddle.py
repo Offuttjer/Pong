@@ -11,17 +11,19 @@ from pygame.math import Vector2
 class Paddle:
     
 
-    def __init__(self, x=   SCREEN_WIDTH-40, y=100, width=10, height=100):
+    def __init__(self, x=   SCREEN_WIDTH-40, y=100, width=10, height=100, side="error"):
         #build properties of the paddle
         self.position = Vector2(x, y)
         self.width = 0
         self.height = 0
         self.velocity = Vector2(0, 0)
+        self.side = ""
 
         #initialize the paddle's position and size
         self.position = Vector2(x, y)
         self.borders = Vector2(width, height)
         self.velocity = Vector2(0, 0)
+        self.side = side
 
     def update(self ):
        
@@ -32,11 +34,16 @@ class Paddle:
             self.position.y = SCREEN_HEIGHT - self.borders.y
         if self.position.y < 0:
             self.position.y = 0
+        if self.position.x < 0:
+            self.position.x = 0
+        if self. position.x + self.borders.x > SCREEN_WIDTH:
+            self.position.x = SCREEN_WIDTH - self.borders.x
         #     self.velocity.y *= -1
         # if self.position.x  < 0:
         #     self.velocity.x *= -1
         # if self.position.x + self.borders.x > SCREEN_WIDTH:
         #     self.velocity.x *= -1
+        
 
     def move_up(self):
         self.position.y += -4
@@ -44,6 +51,12 @@ class Paddle:
     def move_down(self):
         self.position.y += 4
         self.velocity.y = 4
+    def move_left(self):
+        self.position.x += -4
+        self.velocity.x = -4
+    def move_right(self):
+        self.position.x += 4
+        self.velocity.x = 4
     
     def get_rect(self):
         return pygame.Rect(self.position.x, self.position.y, self.borders.x, self.borders.y)
