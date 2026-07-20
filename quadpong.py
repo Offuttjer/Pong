@@ -26,10 +26,26 @@ def main(screen):
         #move it        
         ball.update()
     
+        old_pos = ltPaddle.position.copy()
         ltPaddle.update()
+        if ltPaddle.get_rect().colliderect(tpPaddle.get_rect()) or ltPaddle.get_rect().colliderect(btPaddle.get_rect()):
+            ltPaddle.position = old_pos
+       
+        old_pos = rtPaddle.position.copy()
         rtPaddle.update()
+        if rtPaddle.get_rect().colliderect(tpPaddle.get_rect()) or rtPaddle.get_rect().colliderect(btPaddle.get_rect()):
+            rtPaddle.position = old_pos
+        
+        old_pos = tpPaddle.position.copy()
         tpPaddle.update()
+        if tpPaddle.get_rect().colliderect(ltPaddle.get_rect()) or tpPaddle.get_rect().colliderect(rtPaddle.get_rect()):
+            tpPaddle.position = old_pos
+       
+        old_pos = btPaddle.position.copy()
         btPaddle.update()
+        if btPaddle.get_rect().colliderect(ltPaddle.get_rect()) or btPaddle.get_rect().colliderect(rtPaddle.get_rect()):
+            btPaddle.position = old_pos
+        
 
         #check it
         check_game_score(ball, ball, gameScore, screen)
@@ -42,14 +58,14 @@ def main(screen):
         if ball.velocity.y < 0 and check_collision(ball, tpPaddle):
             collidedWithPaddle(ball, tpPaddle)
 
-        if ltPaddle.get_rect().colliderect(tpPaddle.get_rect()):
-            ltPaddle.position.y = 35#tpPaddle.position.y - tpPaddle.borders.y
-        if ltPaddle.get_rect().colliderect(btPaddle.get_rect()) :
-            ltPaddle.position.y = btPaddle.position.y + ltPaddle.borders.y
-        if rtPaddle.get_rect().colliderect(tpPaddle.get_rect()):     
-            rtPaddle.position.y = 35#tpPaddle.position.y - tpPaddle.borders.y   
-        if rtPaddle.get_rect().colliderect(btPaddle.get_rect()) :
-            rtPaddle.position.y = btPaddle.position.y + rtPaddle.borders.y
+        # if ltPaddle.get_rect().colliderect(tpPaddle.get_rect()):
+        #     ltPaddle.position.y = 35#tpPaddle.position.y - tpPaddle.borders.y
+        # if ltPaddle.get_rect().colliderect(btPaddle.get_rect()) :
+        #     ltPaddle.position.y = btPaddle.position.y + ltPaddle.borders.y
+        # if rtPaddle.get_rect().colliderect(tpPaddle.get_rect()):     
+        #     rtPaddle.position.y = 35#tpPaddle.position.y - tpPaddle.borders.y   
+        # if rtPaddle.get_rect().colliderect(btPaddle.get_rect()) :
+        #     rtPaddle.position.y = btPaddle.position.y + rtPaddle.borders.y
 
         # Event Loop
         for event in pygame.event.get():

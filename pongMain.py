@@ -206,6 +206,8 @@ def main():
             
             if ball.position.y < 0 or ball.position.y > SCREEN_HEIGHT:
                 ball.velocity.y *= -1
+            if invis.position.y < 0 or invis.position.y > SCREEN_HEIGHT:
+                invis.velocity.y *= -1
 
             # Event Loop
             for event in pygame.event.get():
