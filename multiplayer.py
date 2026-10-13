@@ -7,8 +7,8 @@ from Score import Score
 
 
 def multiplayer(screen):
-        rtPaddle = Paddle()
-        ltPaddle = Paddle(x=30, y=100)
+        rtPaddle = Paddle(side = "right")
+        ltPaddle = Paddle(x=30, y=100, side = "left")
         ball = Ball()
         gameScore = Score()
         
@@ -34,6 +34,8 @@ def multiplayer(screen):
                 collidedWithPaddle(ball, rtPaddle)
             if ball.velocity.x < 0 and check_collision(ball, ltPaddle):
                 collidedWithPaddle(ball, ltPaddle)
+            if ball.position.y < 0 or ball.position.y > SCREEN_HEIGHT:
+                ball.velocity.y *= -1
 
             # Event Loop
             for event in pygame.event.get():
